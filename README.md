@@ -1,0 +1,1 @@
+This extension is based on the vits-api: https://github.com/Artrajz/vits-simple-api
