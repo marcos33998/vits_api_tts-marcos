@@ -1,9 +1,9 @@
-import random
+import html
 import re
 import requests
-import string as stringlib
 import gradio as gr
 
+from datetime import datetime
 from pathlib import Path
 from modules import chat, shared, ui_chat
 from modules.logging_colors import logger
@@ -21,7 +21,6 @@ params = {
     "streaming": False,
 }
 voices = None
-wav_idx = 0
 
 
 def refresh_voices():
@@ -33,8 +32,8 @@ def refresh_voices():
         url = f"{params['base_url']}/voice/speakers"
         res = requests.get(url=url)
         json = res.json()
-        your_voices = json["VITS"]
-        voice_names = [f"{voice['id']}.{voice['name']}" for voice in your_voices]
+        api_voices = json["VITS"]
+        voice_names = [f"{voice['id']} | {voice['name']} | {'/'.join(voice['lang'])}" for voice in api_voices]
 
     return voice_names
 
@@ -87,7 +86,7 @@ def state_modifier(state):
 
 def input_modifier(string):
     if params["activate"]:
-        shared.processing_message = "*Is recording a voice message...*"
+        shared.processing_message = "*Waiting ...*"
 
     return string
 
@@ -104,26 +103,30 @@ def history_modifier(history):
 
 
 def output_modifier(string):
-    global params, wav_idx
+    global params
 
     if not params["activate"]:
         return string
 
-    original_string = string
+    original_string = html.unescape(string)
     string = remove_surrounded_chars(string)
-    string = string.replace('"', "")
-    string = string.replace("“", "")
-    string = string.replace("\n", " ")
+
+    # XXX I'm not sure what I'm doing here
+    replace = {'"': "", "“": "", "”": "", "'": "", "‘": "", "’": "", "(": "", "（": "", ")": "", "）": "", "\n": " "}
+
+    for k, v in replace.items():
+        string = string.replace(k, v)
+
     string = string.strip()
 
     if 0 == len(string):
         return string
 
-    output_file = Path(f"extensions/vits_api_tts/outputs/{wav_idx:06d}.mp3".format(wav_idx))
-    url = f"{params['base_url']}/voice/vits"
+    output_file = Path(f"extensions/vits_api_tts/outputs/{datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')}.mp3")
+    id = params["selected_voice"].split(" | ")[0]
     fields = {
         "text": string,
-        "id": str(params["selected_voice"].split(".")[0]),
+        "id": str(id),
         "format": "mp3",
         "lang": "auto",
         "length": str(params["length"]),
@@ -131,16 +134,14 @@ def output_modifier(string):
         "noisew": str(params["noisew"]),
         "streaming": str(params["streaming"]),
     }
+    url = f"{params['base_url']}/voice/vits"
     res = requests.get(url=url, params=fields)
-
-    print(fields)
 
     with open(output_file, "wb") as f:
         f.write(res.content)
 
     autoplay = "autoplay" if params["autoplay"] else ""
     string = f'<audio src="file/{output_file.as_posix()}" controls {autoplay}></audio>'
-    wav_idx += 1
 
     if params["show_text"]:
         string += f"\n\n{original_string}"
