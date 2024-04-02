@@ -26,14 +26,16 @@ voices = None
 def refresh_voices():
     global params
 
-    voice_names = ["0.default"]
-
     if params["base_url"] is not None:
         url = f"{params['base_url']}/voice/speakers"
-        res = requests.get(url=url)
-        json = res.json()
-        api_voices = json["VITS"]
-        voice_names = [f"{voice['id']} | {voice['name']} | {'/'.join(voice['lang'])}" for voice in api_voices]
+
+        try:
+            res = requests.get(url=url)
+            json = res.json()
+            api_voices = json["VITS"]
+            voice_names = [f"{voice['id']} | {voice['name']} | {'/'.join(voice['lang'])}" for voice in api_voices]
+        except:
+            voice_names = ["0.default"]
 
     return voice_names
 
