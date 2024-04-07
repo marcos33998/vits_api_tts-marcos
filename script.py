@@ -10,7 +10,7 @@ from modules.logging_colors import logger
 from modules.utils import gradio
 
 params = {
-    "activate": True,
+    "activate": False,
     "autoplay": False,
     "base_url": "http://localhost:23456/",
     "length": "1.3",
