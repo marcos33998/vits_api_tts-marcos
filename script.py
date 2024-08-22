@@ -111,7 +111,7 @@ def output_modifier(string):
         return string
 
     original_string = html.unescape(string)
-    string = remove_surrounded_chars(original_string)
+    string = remove_surrounded_chars(original_string) # Apply remove_surrounded_chars after unescaping to ensure patterns are correctly matched in the decoded string
 
     # XXX I'm not sure what I'm doing here
     replace = {'"': "", "“": "", "”": "","‘": "", "’": "", "(": "", "（": "", ")": "", "）": "", "\n": " "} # Deleted "'": "", it is buggy
