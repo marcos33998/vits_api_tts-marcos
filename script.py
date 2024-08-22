@@ -111,10 +111,10 @@ def output_modifier(string):
         return string
 
     original_string = html.unescape(string)
-    string = remove_surrounded_chars(string)
+    string = remove_surrounded_chars(original_string)
 
     # XXX I'm not sure what I'm doing here
-    replace = {'"': "", "“": "", "”": "","‘": "", "’": "", "(": "", "（": "", ")": "", "）": "", "\n": " "} # Deleted "'": "", as it does not work properly and other may not as well
+    replace = {'"': "", "“": "", "”": "","‘": "", "’": "", "(": "", "（": "", ")": "", "）": "", "\n": " "} # Deleted "'": "", it is buggy
 
     for k, v in replace.items():
         string = string.replace(k, v)
@@ -124,7 +124,12 @@ def output_modifier(string):
     if 0 == len(string):
         return string
 
-    output_file = Path(f"extensions/vits_api_tts/outputs/{datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')}.mp3")
+    # Sanitize the output filename?
+    output_dir = Path("extensions/vits_api_tts/outputs")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now().strftime('%Y-%m-%dT%H-%M-%S.%fZ')
+    output_file = output_dir / f"{timestamp}.mp3"
+    
     id = params["selected_voice"].split(" | ")[0]
     fields = {
         "text": string,
