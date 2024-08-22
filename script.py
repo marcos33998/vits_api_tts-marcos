@@ -114,7 +114,7 @@ def output_modifier(string):
     string = remove_surrounded_chars(string)
 
     # XXX I'm not sure what I'm doing here
-    replace = {'"': "", "“": "", "”": "", "'": "", "‘": "", "’": "", "(": "", "（": "", ")": "", "）": "", "\n": " "}
+    replace = {'"': "", "“": "", "”": "","‘": "", "’": "", "(": "", "（": "", ")": "", "）": "", "\n": " "} # Deleted "'": "", as it does not work properly and other may not as well
 
     for k, v in replace.items():
         string = string.replace(k, v)
@@ -129,6 +129,7 @@ def output_modifier(string):
     fields = {
         "text": string,
         "id": str(id),
+        "segment_size": "0", # Improves output quality
         "format": "mp3",
         "lang": "auto",
         "length": str(params["length"]),
