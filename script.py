@@ -114,7 +114,7 @@ def output_modifier(string):
     string = remove_surrounded_chars(original_string) # Apply remove_surrounded_chars after unescaping to ensure patterns are correctly matched in the decoded string
 
     # XXX I'm not sure what I'm doing here
-    replace = {'"': "", "“": "", "”": "","‘": "", "’": "", "(": "", "（": "", ")": "", "）": "", "\n": " "} # Deleted "'": "", it is buggy
+    replace = {'"': "", "“": "", "”": "", "‘": "", "’": "", "(": "", "（": "", ")": "", "）": "", "\n": " "} # Deleted "'": "", it is buggy
 
     for k, v in replace.items():
         string = string.replace(k, v)
